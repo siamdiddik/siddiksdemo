@@ -1,40 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Solv Protocol - BTC Rewards</title>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solv Protocol</title>
 </head>
 <body>
-  <h1>Solv Protocol - BTC Rewards Portal</h1>
-  <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
-  
-  <div id="app">
-    <w3m-button></w3m-button>
-  </div>
+  <h2>Solv Protocol</h2>
+  <button id="connect">Connect Wallet</button>
 
   <script type="module">
-    // Import the AppKit (Web3Modal) library directly
-    import { createWeb3Modal, defaultWagmiConfig } from 'https://unpkg.com/@web3modal/wagmi@3.5.0/dist/index.js'
-    import { mainnet } from 'https://unpkg.com/viem/chains'
+    import { Web3Modal } from "https://unpkg.com/@web3modal/standalone@2.5.2";
 
-    // THE LEAKED PROJECT ID
-    const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC'
+    const projectId = "_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC"; // Solv projectId
 
-    const metadata = {
-      name: 'Solv Protocol',
-      description: 'Solv Finance Rewards',
-      url: 'https://app.solv.finance', // We are spoofing this
-      icons: ['https://solv.finance/favicon.ico']
-    }
+    const modal = new Web3Modal({
+      projectId,
+      standaloneChains: ["eip155:1"]
+    });
 
-    const chains = [mainnet]
-    const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
-
-    // Initialize the Modal
-    createWeb3Modal({ wagmiConfig, projectId, chains })
-    
-    console.log("Web3Modal initialized with Project ID: " + projectId);
+    document.getElementById("connect").onclick = () => {
+      modal.openModal();
+    };
   </script>
 </body>
 </html>
