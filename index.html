@@ -1,33 +1,41 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Solv Protocol - BTC Rewards</title>
-    <meta charset="UTF-8">
-  </head>
-  <body>
+    <script src="https://unpkg.com/@walletconnect/sign-client@2.10.6/dist/index.umd.js"></script>
+    <script src="https://unpkg.com/@walletconnect/qrcode-modal@1.8.0/dist/index.min.js"></script>
+</head>
+<body>
     <h1>Solv Protocol - BTC Rewards Portal</h1>
-    <button id="btn" style="padding: 10px; background: blue; color: white;">Connect Wallet</button>
+    <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
+    <button id="btn" style="padding: 15px; background: blue; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Connect Wallet
+    </button>
 
-    <script type="module">
-      // Use the Universal Provider - it's much more stable for single-file PoCs
-      import { WalletConnectModal } from 'https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.js';
+    <script>
+        // THE LEAKED KEY
+        const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
 
-      const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
+        document.getElementById('btn').addEventListener('click', async () => {
+            try {
+                // Initialize the legacy SignClient
+                const connector = new WalletConnect.default({
+                    bridge: "https://bridge.walletconnect.org" // Required for v1/v2 bridge
+                });
 
-      const modal = new WalletConnectModal({
-        projectId,
-        chains: ['eip155:1']
-      });
-
-      document.getElementById('btn').addEventListener('click', async () => {
-        try {
-          await modal.openModal();
-          console.log("Modal opened");
-        } catch (err) {
-          console.error("Error:", err);
-          alert("Error: " + err.message);
-        }
-      });
+                if (!connector.connected) {
+                    await connector.createSession();
+                    const uri = connector.uri;
+                    // Open the QR Code Modal
+                    WalletConnectQRCodeModal.default.open(uri, () => {
+                        console.log("Modal closed");
+                    });
+                }
+            } catch (err) {
+                console.error("Connection Error:", err);
+                alert("Key is likely restricted or inactive: " + err.message);
+            }
+        });
     </script>
-  </body>
+</body>
 </html>
