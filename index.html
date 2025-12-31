@@ -18,22 +18,47 @@
 
         document.getElementById('btn').addEventListener('click', async () => {
             try {
-                // Initialize the legacy SignClient
-                const connector = new WalletConnect.default({
-                    bridge: "https://bridge.walletconnect.org" // Required for v1/v2 bridge
+                // SignClient.init is the correct way to start v2
+                const signClient = await SignClient.init({
+                    projectId: projectId,
+                    metadata: {
+                        name: 'Solv Protocol',
+                        description: 'Solv Finance App',
+                        url: 'https://app.solv.finance',
+                        icons: ['https://solv.finance/favicon.ico']
+                    }
                 });
 
-                if (!connector.connected) {
-                    await connector.createSession();
-                    const uri = connector.uri;
-                    // Open the QR Code Modal
-                    WalletConnectQRCodeModal.default.open(uri, () => {
+                // Create a proposal for connection
+                const { uri, approval } = await signClient.connect({
+                    requiredNamespaces: {
+                        eip155: {
+                            methods: ['eth_sendTransaction', 'personal_sign'],
+                            chains: ['eip155:1'],
+                            events: ['chainChanged', 'accountsChanged']
+                        }
+                    }
+                });
+
+                if (uri) {
+                    // Use the correct global for the QR Code Modal
+                    WalletConnectQRCodeModal.open(uri, () => {
                         console.log("Modal closed");
                     });
                 }
+
+                // Await session approval
+                const session = await approval();
+                console.log("Connected!", session);
+
             } catch (err) {
                 console.error("Connection Error:", err);
-                alert("Key is likely restricted or inactive: " + err.message);
+                // If it's a 403, the Project ID is restricted to their domain
+                if (err.message.includes('403')) {
+                    alert("Key is restricted to Solv's official domain.");
+                } else {
+                    alert("Error: " + err.message);
+                }
             }
         });
     </script>
