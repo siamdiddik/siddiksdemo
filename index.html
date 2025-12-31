@@ -13,23 +13,23 @@
     </button>
 
     <script>
-        // THE LEAKED KEY
         const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
 
         document.getElementById('btn').addEventListener('click', async () => {
             try {
-                // SignClient.init is the correct way to start v2
+                // Accessing the library via the global window object
+                const SignClient = window.WalletConnectSignClient.SignClient;
+                
                 const signClient = await SignClient.init({
                     projectId: projectId,
                     metadata: {
                         name: 'Solv Protocol',
-                        description: 'Solv Finance App',
+                        description: 'Solv Finance Rewards',
                         url: 'https://app.solv.finance',
                         icons: ['https://solv.finance/favicon.ico']
                     }
                 });
 
-                // Create a proposal for connection
                 const { uri, approval } = await signClient.connect({
                     requiredNamespaces: {
                         eip155: {
@@ -41,21 +41,14 @@
                 });
 
                 if (uri) {
-                    // Use the correct global for the QR Code Modal
                     WalletConnectQRCodeModal.open(uri, () => {
                         console.log("Modal closed");
                     });
                 }
-
-                // Await session approval
-                const session = await approval();
-                console.log("Connected!", session);
-
             } catch (err) {
                 console.error("Connection Error:", err);
-                // If it's a 403, the Project ID is restricted to their domain
                 if (err.message.includes('403')) {
-                    alert("Key is restricted to Solv's official domain.");
+                    alert("RESULT: Key is restricted to Solv domains.");
                 } else {
                     alert("Error: " + err.message);
                 }
